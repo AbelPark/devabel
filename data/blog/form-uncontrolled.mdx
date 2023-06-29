@@ -1,0 +1,139 @@
+---
+title: 비제어 컴포넌트로 form 컴포넌트 개발
+date: '2023-06-29'
+tags: ['react']
+draft: false
+summary: form 요소를 만드는 여러가지 방법 중, 비제어 컴포넌트를 활용한 방법과 장단점
+---
+
+<TOCInline toc={props.toc} toHeading={2} />
+
+[비제어컴포넌트의한계](https://tech.inflab.com/202207-rallit-form-refactoring/colocation/)
+[제어컴포넌트와비제어컴포넌트]:(https://velog.io/@yukyung/React-%EC%A0%9C%EC%96%B4-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8%EC%99%80-%EB%B9%84%EC%A0%9C%EC%96%B4-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8%EC%9D%98-%EC%B0%A8%EC%9D%B4%EC%A0%90-%ED%86%BA%EC%95%84%EB%B3%B4%EA%B8%B0)
+
+## 인트로
+
+react에서 form 컴포넌트를 만들 경우, 크게 state를 활용한 제어 컴포넌트를 방식과 ref를 활용한 비제어 컴포넌트 방식으로 나눌 수 있다.
+현재 개발 중인 폼 요소를 왜 비제어 컴포넌트를 활용했는지에 대해, 그 과정에 대해 설명하고자 한다.
+
+## 비제어 컴포넌트
+
+js의 getElementbyid 와 같이 해당 DOM을 참조하여 값 그밖의 상태를 불러온다.  
+그러므로 react의 state를 변경했을 경우와는 달리, 리렌더링이 발생하지 않는다.  
+리렌더링이 발생하지 않으므로 변화를 화면에 즉각적으로 표현하지 않는다.
+
+리렌더링이 state 변화에 따라 즉시 화면 변화가 필요하다면 적절하지 않은 방식이다.
+하지만, 리렌더링으로 인한 최적화 문제에서는 해방될 수 있다.
+
+인풋박스를 예로 들어 장단점을 이야기하면,
+
+### 장점
+
+- 리렌더링 이슈가 발생하지 않음
+
+### 단점
+
+- 인풋 입력값에 따른 즉각적 피드백이 불가능함
+
+### 이럴 때 사용
+
+- 인풋요소가 매우 많은 경우
+- submit 버튼 하나로 모든 valitation 등을 체크하면 되는 경우.
+
+내가 만들어볼 form 요소는 초대장을 보내는 폼타입으로 이름, 번호를 입력하고 submit하는 폼 요소이다.  
+초대장을 다수에게 한번에 보낼 수 있어야 하므로, 요소를 추가, 제거 할 수 있어야 한다.
+valitation은 submit 할 때 한번에 하기로 했다.
+
+## 비제어 Form 만들기
+
+기본적인 비제어 form 만드는 방법은 다른 블로그에 좋은 설명들이 있었다.
+
+[참조](https://devilfront.tistory.com/102)
+
+하지만 만들어야 하는 form은 기본적인 name, phone 인풋 요소를 여러차례 사용해야 했다. 또한, form의 인풋요소가 추가/삭제 할 수 있어야 했다.  
+이를 만족하기 위해 ref를 matrix구조로 만들기로 했다.
+
+1차원 배열은 name, phone이 하나의 요소로 되게끔 처리했고, name, phone 을 2차원 배열 내부의 0,1 번째 배열로 정해놓았다.
+
+또한 폼요소를 추가하고 제거하는 동작은 즉각적인 화면의 변화를 요구했으므로, input을 화면상 배치하는 배열을 state를 추가했다.
+
+```tsx
+'use client'
+
+import { useRef, useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+
+type User = {
+  name: string
+  phone: string
+}
+
+export const ControlledForm = () => {
+  const [formState, setFormState] = useState([uuidv4()])
+  const inputRef = useRef<HTMLInputElement[][]>([[]])
+  const submitForm = () => {
+    const allData: User[] = []
+    inputRef.current.forEach((element) => {
+      allData.push({ name: element[0].value, phone: element[1].value })
+    })
+    console.log(allData)
+  }
+  const addArray = (idx: number) => {
+    const updatedFormState = [...formState]
+    updatedFormState.splice(idx + 1, 0, uuidv4())
+    inputRef.current.splice(idx + 1, 0, [])
+    setFormState(updatedFormState)
+  }
+  const removeArray = (idx: number) => {
+    inputRef.current.splice(idx, 1)
+    const updatedFormState = [...formState]
+    updatedFormState.splice(idx, 1)
+    setFormState(updatedFormState)
+  }
+  return (
+    <form onSubmit={submitForm}>
+      {formState.map((id, idx) => {
+        return (
+          <div key={id}>
+            <input
+              ref={(el) => {
+                if (!!inputRef.current[idx]) {
+                  inputRef.current[idx][0] = el as HTMLInputElement
+                }
+              }}
+            />
+
+            <input
+              ref={(el) => {
+                if (!!inputRef.current[idx]) {
+                  inputRef.current[idx][1] = el as HTMLInputElement
+                }
+              }}
+            />
+            <button type="button" onClick={() => addArray(idx)}>
+              +
+            </button>
+            <button type="button" onClick={() => removeArray(idx)}>
+              -
+            </button>
+          </div>
+        )
+      })}
+      <button type="button" onClick={submitForm}>
+        전송(콘솔창 확인)
+      </button>
+    </form>
+  )
+}
+```
+
+`const [formState, setFormState] = useState([uuidv4()])` 는 배치 uuid로 key를 추적하여, 알맞은 dom이 삭제, 추가 되도록 했다.
+
+(완성본)[]
+
+사실 추천할 만큼 매우 바람직한 방법은 아니다.
+
+왜냐하면 formState를 별도로 두고, inputRef를 참조하는데, 한가지 구조에 두가지 참조요소가 있으니 문제 있다고 볼 수 있다.  
+하지만, 비제어컴포넌트의 특성상, 구성 할 수 있는 최선이라고 생각한다.
+
+다음번엔 좀 더 진화시켜 react-hook-form을 도입하며, 어떤 장단점이 있는지 살펴 보도록 하겠다.
