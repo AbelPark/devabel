@@ -1,0 +1,164 @@
+---
+title: react-hook-form을 활용한 Form 요소 개발
+date: '2023-07-11'
+tags: ['react', 'react-hook-form']
+draft: false
+summary: react-hook-form 객체 배열에서의 활용 방법
+layout: PostSimple
+---
+
+<TOCInline toc={props.toc} toHeading={2} />
+
+## 인트로
+
+[지난 포스팅](/blog/form-uncontrolled)에서 비제어 컴포넌트로 폼 요소를 만들어 보았습니다.  
+이번 포스팅에서는 비제어 컴포넌트와 제어 컴포넌트의 장점을 두루 갖춰 사용할 수 있는 react-hook-form 사용방식을 소개합니다.
+
+## submit data가 객체의 배열인 경우 React-hook-form 활용 방법
+
+제가 필요한 data 타입은 react-hook-form 공식문서에서 쉽게 찾을 수 있는 하나의 객체 타입이 아니라,  
+같은 타입의 객체가 여러차례 반복되어있는 배열 타입 이었습니다.  
+고정된 형식이 아닌 객체가 추가, 제거될 수 있는 배열을 react-hook-form에 어떻게 적용해하 하는지 서칭 하던 중 완벽한 [예시](https://codesandbox.io/s/react-hook-form-usefieldarray-ssugn?file=/src/index.tsx:75-80)를 찾았습니다.  
+`useFieldArray`라는 친절한 훅을 사용하면 모든게 ok 입니다.  
+`test.${index}.firstName` 처럼 템플릿 리터럴을 활용하여 DOM 참조를 해주는게 특징입니다.
+
+링크된 예시를 참조하여 코드를 작성했습니다.
+
+```tsx
+'use client'
+
+// https://codesandbox.io/s/react-hook-form-usefieldarray-ssugn?file=/src/index.tsx:75-80
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { CustomSelect } from './CustomSelect'
+
+type InviteeType = {
+  part: any
+  phone: string
+}
+
+const ReactHookForm = () => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<{
+    inviteeInfo: InviteeType[]
+  }>({
+    defaultValues: {
+      inviteeInfo: [{ part: null, phone: '' }],
+    },
+  })
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'inviteeInfo',
+  })
+
+  const lastFormPart = useWatch({
+    control,
+    name: `inviteeInfo.${fields.length - 1}.part`,
+  })
+
+  const handleAddItem = () => {
+    append(
+      { part: lastFormPart, phone: '' },
+      {
+        shouldFocus: true,
+        focusIndex: fields.length,
+        focusName: `inviteeInfo.${fields.length}.phone`,
+      }
+    )
+  }
+
+  const onSubmit = (data: any) => console.log('data', data)
+
+  return (
+    <>
+      <Button className="mb-2 ml-auto block" type="button" onClick={handleAddItem}>
+        추가하기
+      </Button>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <ul>
+          {fields.map((item, idx) => {
+            return (
+              <li className="mb-2 flex gap-2" key={item.id}>
+                <div className="flex w-1/4 flex-col">
+                  <Controller
+                    render={({ field }) => (
+                      <CustomSelect
+                        {...field}
+                        className="bg-white focus:bg-yellow-50"
+                        options={[
+                          { name: '1층', value: '1층' },
+                          { name: '2층', value: '2층' },
+                          { name: '기타', value: '기타' },
+                        ]}
+                      />
+                    )}
+                    name={`inviteeInfo.${idx}.part`}
+                    control={control}
+                  />
+                </div>
+                <div className="flex flex-1 flex-col">
+                  <Controller
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        className="bg-white invalid:border-red-600 focus-visible:bg-yellow-50"
+                        onBlur={() => console.log(123)}
+                        pattern="[0-9]+"
+                      />
+                    )}
+                    name={`inviteeInfo.${idx}.phone`}
+                    control={control}
+                  />
+                </div>
+                {fields.length > 1 && (
+                  <Button type="button" onClick={() => remove(idx)}>
+                    -
+                  </Button>
+                )}
+              </li>
+            )
+          })}
+        </ul>
+        <Button className="m-auto mt-4 block" size="lg" type="submit">
+          초대장 보내기
+        </Button>
+      </form>
+    </>
+  )
+}
+
+export { ReactHookForm }
+```
+
+## 예시코드 살펴보기
+
+1. react-hook-form의 `Controller` 컴포넌트로 `CustomSelect`와 같은 컴포넌트를 참조하도록 했습니다.
+2. `useWatch`를 활용했습니다.
+
+   - `append`를 하여 배열에 객체를 추가 했을 경우, 마지막 요소한 select한 `part`가 그대로 이어지도록 했습니다.
+
+3. `append`의 options를 활용했습니다.
+
+   - `append`에 아래와 같은 포커싱 옵션이 있어서, 마지막 추가된 input에 자동 포커싱 되도록 했습니다.
+
+   - ```tsx
+     append(
+       { part: lastFormPart, phone: '' },
+       {
+         shouldFocus: true,
+         focusIndex: fields.length,
+         focusName: `inviteeInfo.${fields.length}.phone`,
+       }
+     )
+     ```
+
+## 마치며
+
+일반적으로 떠올리는 form요소에 필요한 기능은 전부 들어있습니다.  
+또한, 제어/비제어 컴포넌트의 장점만 챙겨서 리렌더링 최적화 및 실시간 피드백 모두를 아우를 수 있기 때문에, 최적화된 코드를 빠른시간에 만들어 내는게 가능합니다.
+
+다음 포스팅에서는 이 폼 요소를 validate하는 방법에 대해 알아보겠습니다.
