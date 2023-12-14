@@ -2,23 +2,23 @@
 
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
-  title: 'Dev A log',
+  title: '아벨의 기술 블로그',
   author: 'Hyeongmin Park',
-  headerTitle: '',
-  description: '',
+  headerTitle: 'bel`s SimpleLog',
+  description: '웹 개발에 관한 소소한 이야기들',
   language: 'ko',
   theme: 'system', // system, dark or light
-  siteUrl: 'https://tailwind-nextjs-starter-blog.vercel.app',
+  siteUrl: 'https://devabel.netlify.app',
   siteRepo: 'https://github.com/timlrx/tailwind-nextjs-starter-blog',
   siteLogo: '/static/images/logo.png',
   image: '/static/images/avatar.png',
-  socialBanner: '/static/images/twitter-card.png',
+  socialBanner: '/static/favicons/mstile-150x150.png',
   email: 'parkhm0829@gmail.com',
   github: 'https://github.com/AbelPark',
-  twitter: 'https://twitter.com/Twitter',
+  // twitter: 'https://twitter.com/Twitter',
   // facebook: 'https://facebook.com',
   // youtube: 'https://youtube.com',
-  linkedin: 'https://www.linkedin.com/in/abelpark/',
+  linkedin: 'https://www.linkedin.com/in/abelpark',
   locale: 'ko',
   analytics: {
     // If you want to use an analytics provider you have to add it to the

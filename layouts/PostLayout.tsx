@@ -38,7 +38,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
   return (
     <SectionContainer>
       <BlogSEO url={`${siteMetadata.siteUrl}/${path}`} authorDetails={authorDetails} {...content} />
-      <ScrollTopAndComment />
+      {/* <ScrollTopAndComment /> */}
       <article>
         <div className="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700">
           <header className="pt-6 xl:pb-6">
@@ -116,7 +116,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
               )} */}
             </div>
             <footer>
-              <div className="divide-gray-200 text-sm font-medium leading-5  dark:divide-gray-700 xl:col-start-1 xl:row-start-2 xl:divide-y">
+              <div className="divide-gray-200 text-sm font-medium leading-5 dark:divide-gray-700 xl:col-start-1 xl:row-start-2 xl:divide-y">
                 {tags && (
                   <div className="py-4 xl:py-8">
                     <h2 className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">

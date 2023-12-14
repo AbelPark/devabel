@@ -1,23 +1,23 @@
 ---
-title: react-hook-form validate (class-validator 활용)
+title: class-validator
 date: '2023-07-12'
-tags: ['react', 'react-hook-form', 'class-validator', 'class-transformer']
-draft: false
-summary: react-hook-form을 활용한 객체 배열에서 class-validator를 활용한 validation 체크
-layout: PostSimple
+tags: ['react']
+summary: react-hook-form과 class-validator를 결합한 validation 체크
 ---
 
-<TOCInline toc={props.toc} toHeading={2} />
-
-## 인트로
+## Intro
 
 [지난 포스팅](/blog/react-hook-form)에서 객체 배열에서 react-hook-form을 활용하는 방법 `useFieldArray`에 대해 알아 봤습니다.  
 이번 포스팅은 form요소에서 빠질 수 없는 validation 체크에 관한 이야기를 하겠습니다.
 
-## 세팅
+---
+
+## Setting
 
 react-hook-form과 class-validator, joi, zod 등 validation library를 결합하여 사용하려면 [resolver](https://github.com/react-hook-form/resolvers)를 사용하시는 게 좋습니다.  
 간결하게 원하는 validation check를 가능하게 해 줍니다.
+
+---
 
 ## class-validator
 
@@ -25,6 +25,8 @@ react-hook-form과 class-validator, joi, zod 등 validation library를 결합하
 다른 라이브러리를 적극적으로 사용해 보지 않았기 때문에 하긴 어떤게 더 나은지는 잘 모르겠습니다. 어떤 라이브러리를 사용해도 성능차이는 대동소이 할 것이므로, 맘에 드는 라이브러리 하나 골라서 쓰시면 될 것 같습니다.
 사실 react-hook-form 에서 제공하는 기능(required, pattern 등등...)으로 사용해도 무방합니다.  
 하지만 좀 더 가독성있게, 집중 관리식으로 편하게 사용하시려면 라이브러리를 쓰는게 좋을 것으로 생각됩니다.
+
+---
 
 ## 객체 배열 형식 체크
 
@@ -49,6 +51,8 @@ class InviteeArray {
 ### ⚠주의
 
 `@Type`데코레이터를 사용할 경우 reflect 타입에러가 발생한 경우, `@types/reflect-metadata`를 설치해 주면 됩니다.
+
+---
 
 ## 완성
 
@@ -208,6 +212,8 @@ const ReactHookForm = () => {
 
 export { ReactHookForm }
 ```
+
+---
 
 ## 마치며
 
