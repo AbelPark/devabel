@@ -2,17 +2,15 @@
 title: 비제어 컴포넌트로 Form 페이지 개발
 date: '2023-06-29'
 tags: ['react']
-draft: false
-summary: form 요소를 만드는 여러가지 방법 중, 비제어 컴포넌트를 활용한 방법과 장단점
-layout: PostSimple
+summary: 비제어 컴포넌트를 활용한 방법과 장단점
 ---
 
-<TOCInline toc={props.toc} toHeading={2} />
-
-## 인트로
+## Intro
 
 react에서 form 컴포넌트를 만들 경우, 크게 state를 활용한 제어 컴포넌트를 방식과 ref를 활용한 비제어 컴포넌트 방식으로 나눌 수 있다.
 현재 개발 중인 폼 요소를 왜 비제어 컴포넌트를 활용했는지에 대해, 그 과정에 대해 설명하고자 한다.
+
+---
 
 ## 비제어 컴포넌트
 
@@ -41,6 +39,8 @@ js의 getElementbyid 와 같이 해당 DOM을 참조하여 값 그밖의 상태�
 내가 만들어볼 form 요소는 초대장을 보내는 폼타입으로 이름, 번호를 입력하고 submit하는 폼 요소이다.  
 초대장을 다수에게 한번에 보낼 수 있어야 하므로, 요소를 추가, 제거 할 수 있어야 한다.
 valitation은 submit 할 때 한번에 하기로 했다.
+
+---
 
 ## 비제어 Form 만들기
 
